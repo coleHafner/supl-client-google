@@ -1,0 +1,33 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  
+  config.vm.synced_folder "supl/", "/home/vagrant/supl"
+
+  config.vm.hostname = "supl-client"
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "supl-client"
+    v.memory = 1024
+  end
+
+  config.vm.provision "bootstrap",
+    run: "once",
+    type: "shell",
+    inline: "sudo apt-get update && sudo apt-get -y install git libssl-dev pkg-config zsh && sudo sh -c \"$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
+
+  config.vm.provision "git",
+    run: "once",
+    type: "file",
+    source: "./.gitconfig.sample",
+    destination: "$HOME/.gitconfig"
+
+  config.vm.provision "asn1c",
+    run: "once",
+    type: "shell",
+    inline: "sudo apt-get -y install bison automake libtool flex && cd /home/vagrant/supl/src/asn1c && test -f configure || autoreconf -iv && ./configure && make && sudo make install"
+
+  config.vm.provision "supl",
+    run: "once",
+    type: "shell", 
+    inline: "cd /home/vagrant/supl && ./configure --enable-debug --enable-supl-debug --precompiled-asn1 && make && sudo make install && cd /usr/lib && sudo ln -s /usr/local/lib/libsupl.so libsupl.so && sudo ln -s /usr/local/lib/libsupl.so.1 libsupl.so.1"
+end

@@ -1,0 +1,11 @@
+[alias]
+	st = status
+	co = checkout
+	br = branch
+[color]
+	ui = always
+[user]
+	name = Vagrant
+	email = vagrant@vagrant.biz
+[remote "origin"]
+	prune = true
